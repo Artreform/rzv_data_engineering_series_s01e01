@@ -32,13 +32,15 @@ def tutorial_taskflow_api():
         order_data_dict = json.loads(data_string)
         return order_data_dict
     @task(multiple_outputs=True)
-    def transform(order_data_dict: dict):
+    def transform(order_data_dict: dict, **context):
         """
         #### Transform task
         A simple Transform task which takes in the collection of order data and
         computes the total order value.
         """
         total_order_value = 0
+        print("task run exec date is")
+        print(context["dag_run"].execution_date)
 
         for value in order_data_dict.values():
             total_order_value += value
