@@ -3,7 +3,9 @@ import json
 
 import pendulum
 
-from airflow.decorators import dag, task
+from airflow.decorators import dag, task, task_group
+from airflow.operators.empty import EmptyOperator
+
 @dag(
     schedule=None,
     start_date=pendulum.datetime(2021, 1, 1, tz="UTC"),
@@ -46,6 +48,10 @@ def tutorial_taskflow_api():
             total_order_value += value
 
         return {"total_order_value": total_order_value}
+    
+
+
+
     @task()
     def load(total_order_value: float):
         """
@@ -55,7 +61,26 @@ def tutorial_taskflow_api():
         """
 
         print(f"Total order value is: {total_order_value:.2f}")
+    
+
+
+
+
+    for item in ['sales', 'customers']:
+        @task_group(group_id=item)
+        def tg1():
+            t1 = EmptyOperator(task_id='task_1')
+            t2 = EmptyOperator(task_id='task_2')
+
+
+        tg1()
+
+    tg1_task = tg1()
+
+
+
     order_data = extract()
     order_summary = transform(order_data)
     load(order_summary["total_order_value"])
+    tg1_task
 tutorial_taskflow_api()
