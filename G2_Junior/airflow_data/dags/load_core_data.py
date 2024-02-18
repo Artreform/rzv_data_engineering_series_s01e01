@@ -89,15 +89,21 @@ def load_core_data():
     
 
 
-    @task_group()
-    def etl_data():
-        for table in INPUTS["tables"]:
+    # @task_group()
+    # def etl_data():
+    #     for table in INPUTS["tables"]:
+    #         file_path_e = extract(table)
+    #         file_path_t = transform(file_path_e, table)
+    #         load(file_path_t, table)
+
+    for table in INPUTS["tables"]:
+        @task_group(group_id=table)
+        def etl_data():
             file_path_e = extract(table)
             file_path_t = transform(file_path_e, table)
             load(file_path_t, table)
-
-
-    create_schema_task >> prepare_tables_task >> etl_data()
+            
+        create_schema_task >> prepare_tables_task >> etl_data()
 
 dag = load_core_data()
     
